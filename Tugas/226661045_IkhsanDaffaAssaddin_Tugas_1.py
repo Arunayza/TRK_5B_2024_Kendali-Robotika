@@ -14,7 +14,7 @@ def set_motor_speed (left_speed, right_speed):
 sim.setStepping(True)
 sim.startSimulation()
 
-for _ in range(190):
+for _ in range(200):
     set_motor_speed(2,2)
     sim.step()
 
@@ -50,7 +50,7 @@ for _ in range(220):
     set_motor_speed(2,2)
     sim.step()
 
-for _ in range(50):
+for _ in range(55):
     set_motor_speed(3,0)
     sim.step()
 
