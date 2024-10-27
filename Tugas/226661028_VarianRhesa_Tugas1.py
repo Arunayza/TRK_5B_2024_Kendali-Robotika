@@ -66,11 +66,11 @@ for _ in range(250):
     set_motor_speed(2,2)
     sim.step()
 
-for _ in range(63):
+for _ in range(55):
     set_motor_speed(0,3)
     sim.step()
 
-for _ in range(180):
+for _ in range(190):
     set_motor_speed(2,2)
     sim.step()
 
@@ -78,7 +78,7 @@ for _ in range(50):
     set_motor_speed(0,0)
     sim.step()
 
-for _ in range(48):
+for _ in range(42):
     set_motor_speed(3,-3)
     sim.step()
 
