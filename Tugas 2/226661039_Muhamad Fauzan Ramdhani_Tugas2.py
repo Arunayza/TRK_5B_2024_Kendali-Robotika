@@ -20,28 +20,20 @@ sim.setStepping(True)
 sim.startSimulation()
 
 # Input dari pengguna
-# left_speed = float(input("Masukkan kecepatan motor kiri (rad/s): "))
-left_speed = 2
-# right_speed = float(input("Masukkan kecepatan motor kanan (rad/s): "))
-right_speed = 2
-duration = 9.6
-turn_duration = 1.85
-# float(input("Berapa lama robot harus bergerak (detik)? "))
-# diameter ban berdasarkan absen
-wheel_diameter = 47 
-# float(input("Masukkan diameter roda (cm): "))
+left_speed = 3
+right_speed = 3
+turn_duration = 2  # Durasi untuk belok kanan (dalam detik)
+straight_duration = 13  # Durasi untuk maju (dalam detik)
+wheel_diameter = 39  # Diameter roda dalam cm
 
 # Hitung lingkaran roda
 wheel_radius = wheel_diameter / 100 / 2  # Konversi ke meter
 wheel_circumference = 2 * math.pi * wheel_radius  # Lingkaran roda dalam meter
 
-# Menghitung jumlah langkah berdasarkan durasi
-steps = int(duration * 10)  # Asumsi 10 langkah per detik
-
-# Inisialisasi jarak tempuh
-distance_traveled = 0
-
-for _ in range(4):
+# Fungsi untuk menghitung jarak tempuh dalam langkah
+def move_forward(duration, left_speed, right_speed):
+    steps = int(duration * 10)  # Asumsi 10 langkah per detik
+    distance_traveled = 0  # Inisialisasi jarak tempuh
     for _ in range(steps):
         set_motor_speed(left_speed, right_speed)
         sim.step()
@@ -51,70 +43,66 @@ for _ in range(4):
         right_velocity = sim.getJointVelocity(right_motor)
 
         # Menghitung jarak yang ditempuh dalam langkah ini
-        left_distance = left_velocity * (1/10) * wheel_circumference  # (1/10) untuk konversi dt
-        right_distance = right_velocity * (1/10) * wheel_circumference
+        left_distance = left_velocity * (1 / 10) * wheel_circumference  # (1/10) untuk konversi dt
+        right_distance = right_velocity * (1 / 10) * wheel_circumference
 
         # Akumulasi jarak tempuh
         distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
 
-        # Hitung jumlah putaran
+        # Hitung jumlah putaran roda
         rotations = distance_traveled / wheel_circumference
 
         # Menampilkan hasil
-        print(f"Left Motor Velocity: {left_velocity:.2f} rad/s")
-        print(f"Right Motor Velocity: {right_velocity:.2f} rad/s")
-        print(f"Distance Traveled: {distance_traveled:.2f} m")
-        print(f"Wheel Rotations: {rotations:.2f}")
+        print(f"Distance Traveled: {distance_traveled:.2f} m | Wheel Rotations: {rotations:.2f}")
 
+    return distance_traveled
+
+def turn_right(duration, left_turn_speed, right_turn_speed):
+    steps = int(duration * 10.4)  # Asumsi 10 langkah per detik
     for _ in range(steps):
-        set_motor_speed(left_speed, right_speed)
+        set_motor_speed(left_turn_speed, right_turn_speed)  # Kecepatan berbeda untuk belok kanan
         sim.step()
-        
-        # Membaca kecepatan joint motor
-        left_velocity = sim.getJointVelocity(left_motor)
-        right_velocity = sim.getJointVelocity(right_motor)
+        # Menampilkan status belok kanan
+        print("Turning right...")
 
-        # Menghitung jarak yang ditempuh dalam langkah ini
-        left_distance = left_velocity * (1/10) * wheel_circumference  # (1/10) untuk konversi dt
-        right_distance = right_velocity * (1/10) * wheel_circumference
+# Loop untuk maju dan belok secara bergantian
+total_distance = 0
 
-        # Akumulasi jarak tempuh
-        distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+try:
+    # Maju pertama
+    print("Moving forward...")
+    total_distance += move_forward(straight_duration, left_speed, right_speed)
+    
+    # Belok kanan pertama
+    print("Turning right...")
+    turn_right(turn_duration, left_speed, -right_speed)
 
-        # Hitung jumlah putaran
-        rotations = distance_traveled / wheel_circumference
+    # Maju kedua
+    print("Moving forward...")
+    total_distance += move_forward(straight_duration, left_speed, right_speed)
 
-        # Menampilkan hasil
-        print(f"Left Motor Velocity: {left_velocity:.2f} rad/s")
-        print(f"Right Motor Velocity: {right_velocity:.2f} rad/s")
-        print(f"Distance Traveled: {distance_traveled:.2f} m")
-        print(f"Wheel Rotations: {rotations:.2f}")
+    # Belok kanan kedua
+    print("Turning right...")
+    turn_right(turn_duration, left_speed, -right_speed)
 
+    # Maju ketiga
+    print("Moving forward...")
+    total_distance += move_forward(straight_duration, left_speed, right_speed)
+    
+    # Belok kanan ketiga
+    print("Turning right...")
+    turn_right(turn_duration, left_speed, -right_speed)
 
-    turn_steps = int(turn_duration * 10)
-    for _ in range(turn_steps):
-        set_motor_speed(5, -2)  # Motor kiri berhenti, motor kanan berjalan
-        sim.step()
+    # Maju keempat
+    print("Moving forward...")
+    total_distance += move_forward(straight_duration, left_speed, right_speed)
+    
+    # Belok kanan terakhir
+    print("Turning right...")
+    turn_right(turn_duration, left_speed, -right_speed)
 
-            # Membaca kecepatan joint motor
-        left_velocity = sim.getJointVelocity(left_motor)
-        right_velocity = sim.getJointVelocity(right_motor)
+    print(f"Total Distance Traveled: {total_distance:.2f} m")
 
-        # Menghitung jarak yang ditempuh dalam langkah ini
-        left_distance = left_velocity * (1/10) * wheel_circumference  # (1/10) untuk konversi dt
-        right_distance = right_velocity * (1/10) * wheel_circumference
-
-        # Akumulasi jarak tempuh
-        distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
-
-        # Hitung jumlah putaran
-        rotations = distance_traveled / wheel_circumference
-
-        # Menampilkan hasil
-        print(f"Left Motor Velocity: {left_velocity:.2f} rad/s")
-        print(f"Right Motor Velocity: {right_velocity:.2f} rad/s")
-        print(f"Distance Traveled: {distance_traveled:.2f} m")
-        print(f"Wheel Rotations: {rotations:.2f}")
-
-
-sim.stopSimulation()
+finally:
+    # Menghentikan simulasi
+    sim.stopSimulation()
