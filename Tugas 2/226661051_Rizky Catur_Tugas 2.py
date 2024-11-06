@@ -20,7 +20,7 @@ sim.startSimulation()
 left_speed = 2
 right_speed = 2
 durasi_lurus = 18.2  # Durasi untuk bergerak lurus
-turn_duration = 1.86  # Durasi untuk belok
+turn_duration = 1.88  # Durasi untuk belok
 wheel_diameter = 51  # Diameter roda dalam cm
 
 wheel_radius = wheel_diameter / 100 / 2  # Konversi ke meter
