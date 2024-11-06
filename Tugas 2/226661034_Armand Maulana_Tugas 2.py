@@ -19,9 +19,9 @@ sim.startSimulation()
 
 left_speed = 2
 right_speed = 2
-durasi_lurus = 18.5  # Durasi untuk bergerak lurus
+durasi_lurus = 18.8  # Durasi untuk bergerak lurus
 turn_duration = 1.85  # Durasi untuk belok
-wheel_diameter = 50  # Diameter roda dalam cm
+wheel_diameter = 34  # Diameter roda dalam cm
 
 wheel_radius = wheel_diameter / 100 / 2  # Konversi ke meter
 wheel_circumference = 2 * math.pi * wheel_radius  # Lingkaran roda dalam meter
@@ -29,6 +29,7 @@ wheel_circumference = 2 * math.pi * wheel_radius  # Lingkaran roda dalam meter
 steps = int(durasi_lurus * 10)  # Asumsi 10 langkah per detik
 turn_steps = int(turn_duration * 10)  # Langkah untuk belokan
 
+# Inisialisasi jarak tempuh
 distance_traveled = 0
 
 for i in range(4):  # Mengulangi pola lurus → belok sebanyak 4 kali
