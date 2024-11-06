@@ -30,7 +30,7 @@ turn_duration = 1.85
 
 # float(input("Berapa lama robot harus bergerak (detik)? "))
 # diameter ban berdasarkan absen
-wheel_diameter = 47 
+wheel_diameter = 37 
 
 # float(input("Masukkan diameter roda (cm): "))
 # Hitung lingkaran roda
