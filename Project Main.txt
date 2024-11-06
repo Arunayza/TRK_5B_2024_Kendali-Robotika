@@ -1,0 +1,41 @@
+Tahap 1
+----------------------------------------------------------------------------
+buat 3 tim
+
+Tim-1 Robot A(Merah)
+Tim-2 Robot B(Biru)
+Tim-3 bertugas untuk membuat arena, terdiri dari tim 1 dan tim 2
+
+Komposisi
+Tim-1 8 Orang
+Tim-2 8 Orang
+Tim-3 9 Orang
+
+1 orang Project Leader
+
+berikut Tim 1 dan 2 berdasarkan nomor urut absen
+Tim-1
+14-5-2-23-4-16-3-8-9-19-25-20-13
+
+Tim-2
+6-18-1-21-17-7-10-15-22-26-12-11 (-1 (MSIB Absen 24)
+
+Setiap Tim wajib memberikan laporan mingguan, sesuai dengan progress masing2, dalam format jurnal
+
+Dengan Judul "Pemanfaatan Coppelia Simulator untuk Simulasi Robot Pioner P3DX - Studi Kasus Arena KRC POLNES 2024
+terdiri dari
+1. Abstrak 
+2. Pendahuluan (Penjelasan apa itu coppelia, Pionerp3dx, robot wall follower
+3. Konfigurasi (sepersi setup sensor dll)
+4 dan dst, update perkembangan tiap minggu, contoh
+4. Perkembangan tanggal xx-xx-xxxx
+5. Perkembangan Tanggal xx-xx-xxxx
+6. dst
+xx. Terakhir Kesimpulan
+xx. Daftar tim
+
+Siapa yg membuat laporan diatas, project Leader
+setiap tim memberikan laporan progress kepada project leader untuk dibuat format seperti diatas
+
+
+dikumpulkan via github
