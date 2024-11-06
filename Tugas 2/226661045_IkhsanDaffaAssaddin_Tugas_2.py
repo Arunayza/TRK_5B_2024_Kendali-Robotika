@@ -19,9 +19,9 @@ sim.startSimulation()
 
 left_speed = 2
 right_speed = 2
-durasi_lurus = 18.5  # Durasi untuk bergerak lurus
-turn_duration = 1.85  # Durasi untuk belok
-wheel_diameter = 50  # Diameter roda dalam cm
+durasi_lurus = 18.5  
+turn_duration = 1.85  
+wheel_diameter = 50  
 
 wheel_radius = wheel_diameter / 100 / 2  # Konversi ke meter
 wheel_circumference = 2 * math.pi * wheel_radius  # Lingkaran roda dalam meter
@@ -56,7 +56,7 @@ for i in range(4):  # Mengulangi pola lurus → belok sebanyak 4 kali
     # Gerakan belok
     print(f"--- Hasil Belokan ke-{i+1} ---")
     for step in range(turn_steps):
-        set_motor_speed(5, -2)  # Set kecepatan untuk belok
+        set_motor_speed(5, -2) 
         sim.step()
 
         # Membaca kecepatan joint motor
@@ -74,7 +74,7 @@ for i in range(4):  # Mengulangi pola lurus → belok sebanyak 4 kali
         if step % 10 == 0 or step == turn_steps - 1:
             print(f"Langkah {step+1}/{turn_steps} - Distance Traveled: {distance_traveled:.2f} m")
 
-print("\n----------- Hasil Akhir -----------")
+print("\n Hasil Akhir ")
 print(f"Left Motor Velocity: {left_velocity:.2f} rad/s")
 print(f"Right Motor Velocity: {right_velocity:.2f} rad/s")
 rotations = distance_traveled / wheel_circumference
