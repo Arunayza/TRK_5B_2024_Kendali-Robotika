@@ -49,9 +49,9 @@ for i in range(4):  # Mengulangi pola lurus → belok sebanyak 4 kali
         # Akumulasi jarak tempuh
         distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
 
-        # Hanya menampilkan setiap 10 langkah
-        if step % 10 == 0 or step == steps - 1:
-            print(f"step {step+1}/{steps} - Distance Traveled: {distance_traveled:.2f} m")
+        # Hanya menampilkan setiap 5 langkah
+        if step % 5 == 0 or step == steps - 1: 
+            print(f"step {step+1}/{steps} - Distance Traveled: {distance_traveled:.2f} m - Left Motor Velocity: {left_velocity:.2f} rad/s - Right Motor Velocity: {right_velocity:.2f} rad/s")
     
     # Gerakan belok
     print(f"--- Turn Right-{i+1} ---")
@@ -70,6 +70,10 @@ for i in range(4):  # Mengulangi pola lurus → belok sebanyak 4 kali
         # Akumulasi jarak tempuh
         distance_traveled += (left_distance + right_distance) / 2
 
+            # Hanya menampilkan setiap 5 langkah
+        if step % 5 == 0 or step == steps - 1:
+            print(f"step {step+1}/{steps} - Distance Traveled: {distance_traveled:.2f} m - Left Motor Velocity: {left_velocity:.2f} rad/s - Right Motor Velocity: {right_velocity:.2f} rad/s")
+    
   
 print("\n----------- Final Report -----------")
 print(f"Left Motor Velocity: {left_velocity:.2f} rad/s")
