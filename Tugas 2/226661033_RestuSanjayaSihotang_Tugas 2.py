@@ -26,7 +26,7 @@ left_speed = 4.15
 right_speed = 4.15
 turn_duration = 1.42  # Durasi untuk belok kanan (dalam detik)
 straight_duration = 6.98  # Durasi untuk maju (dalam detik)
-wheel_diameter = 28  # Diameter roda dalam cm
+wheel_diameter = 33  # Diameter roda dalam cm
 # float(input("Berapa lama robot harus bergerak (detik)? "))
 
 # float(input("Masukkan diameter roda (cm): "))
