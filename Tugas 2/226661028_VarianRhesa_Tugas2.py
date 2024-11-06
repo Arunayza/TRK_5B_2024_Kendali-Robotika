@@ -70,15 +70,12 @@ for i in range(4):  # Mengulangi pola lurus → belok sebanyak 4 kali
         # Akumulasi jarak tempuh
         distance_traveled += (left_distance + right_distance) / 2
 
-        # Hanya menampilkan setiap 10 langkah
-        if step % 10 == 0 or step == turn_steps - 1:
-            print(f"Step {step+1}/{turn_steps} - Distance Traveled: {distance_traveled:.2f} m")
-
+  
 print("\n----------- Final Report -----------")
 print(f"Left Motor Velocity: {left_velocity:.2f} rad/s")
 print(f"Right Motor Velocity: {right_velocity:.2f} rad/s")
 rotations = distance_traveled / wheel_circumference
 print(f"Wheel Rotations: {rotations:.2f}")
 print(f"Total Distance Traveled: {distance_traveled:.2f} m")
-
+print("\n-----------------------------------")
 sim.stopSimulation()
