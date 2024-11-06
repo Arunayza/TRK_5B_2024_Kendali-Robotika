@@ -54,7 +54,7 @@ for i in range(4):  # Mengulangi pola lurus → belok sebanyak 4 kali
             print(f"step {step+1}/{steps} - Distance Traveled: {distance_traveled:.2f} m")
     
     # Gerakan belok
-    print(f"--- Turn-{i+1} ---")
+    print(f"--- Turn Right-{i+1} ---")
     for step in range(turn_steps):
         set_motor_speed(5, -2)  # Set kecepatan untuk belok
         sim.step()
