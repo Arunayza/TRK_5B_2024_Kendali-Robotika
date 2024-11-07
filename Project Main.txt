@@ -22,11 +22,11 @@ Tim-2
 
 Setiap Tim wajib memberikan laporan mingguan, sesuai dengan progress masing2, dalam format jurnal
 
-Dengan Judul "Pemanfaatan Coppelia Simulator untuk Simulasi Robot Pioner P3DX - Studi Kasus Arena KRC POLNES 2024
+Dengan Judul "Pemanfaatan Coppelia Simulator untuk Simulasi Robot Pioner P3DX - Studi Kasus Arena KRC POLNES 2024"
 terdiri dari
 1. Abstrak 
-2. Pendahuluan (Penjelasan apa itu coppelia, Pionerp3dx, robot wall follower
-3. Konfigurasi (sepersi setup sensor dll)
+2. Pendahuluan (Penjelasan apa itu coppelia, Pionerp3dx, robot wall follower, python)
+3. Konfigurasi (seperti setup sensor dll)
 4 dan dst, update perkembangan tiap minggu, contoh
 4. Perkembangan tanggal xx-xx-xxxx
 5. Perkembangan Tanggal xx-xx-xxxx
