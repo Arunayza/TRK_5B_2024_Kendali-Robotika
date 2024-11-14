@@ -15,11 +15,17 @@ Tim-3 9 Orang
 
 berikut Tim 1 dan 2 berdasarkan nomor urut absen
 Tim-1
-22-18-25-9-1-15-16-2-11-3-19-21-12
+22-18-25-9-1-15-2-11-3-19-21-12
 
 Tim-2
-20-26-5-14-8-17-6-10-23-13-7-4
+20-26-5-14-16-17-6-10-23-13-7-4
 
+tim 3 
+dari tim 1 : 11-12-19-22  
+dari tim 2 : 13-14-16-17
+
+project Leader
+8
 
 Setiap Tim wajib memberikan laporan mingguan, sesuai dengan progress masing2, dalam format jurnal
 
