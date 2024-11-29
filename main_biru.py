@@ -6,86 +6,637 @@ import math
 client = RemoteAPIClient()
 sim = client.require('sim')
 
-# Mendapatkan handle untuk motor kiri dan kanan
-left_motor = sim.getObject('/PioneerP3DX/leftMotor')
-right_motor = sim.getObject('/PioneerP3DX/rightMotor')
-
-# Mendapatkan handle untuk sensor jarak
-left_sensor = sim.getObject('/PioneerP3DX/ultrasonicSensor[0]')
-front_sensor = sim.getObject('/PioneerP3DX/ultrasonicSensor[3]')
+left_motor = sim.getObject('/PioneerP3DX[0]/leftMotor')
+right_motor = sim.getObject('/PioneerP3DX[0]/rightMotor')
 
 # Fungsi untuk mengatur kecepatan motor
 def set_motor_speed(left_speed, right_speed):
     sim.setJointTargetVelocity(left_motor, left_speed)
     sim.setJointTargetVelocity(right_motor, right_speed)
 
-# Fungsi untuk membaca sensor jarak
-def read_sensor(sensor):
-    detection_state, detected_distance, _, _, _ = sim.readProximitySensor(sensor)
-    if detection_state:
-        return detected_distance  # Mengembalikan jarak jika ada deteksi
-    else:
-        return None  # Tidak ada deteksi
-
-# Memulai simulasi
 sim.setStepping(True)
 sim.startSimulation()
 
-# Parameter
-wall_distance = 0.2  # Jarak yang diinginkan dari dinding (dalam meter)
-frontwall_distance = 0.3
-base_speed = 5  # Kecepatan dasar motor
-turning_speed = 3  # Kecepatan untuk berbelok
-distance_tolerance = 0.05  # Toleransi jarak dari dinding (5 cm)
+left_speed = 2  # Kecepatan motor kiri untuk gerakan lurus
+right_speed = 2  # Kecepatan motor kiri untuk gerakan lurus
+duration_lurus = 10  # Durasi untuk bergerak lurus dalam detik
+duration_lurus2 = 7  # Durasi untuk bergerak lurus dalam detik
+duration_lurus3 = 14  # Durasi untuk bergerak lurus dalam detik
+duration_lurus4 = 24
+duration_lurus5 = 25
+duration_lurus6 = 35
+duration_lurus7 = 27
+duration_lurus8 = 40
+turn_duration = 3  # Durasi untuk belok dalam detik
+turn_duration2 = 2.8  # Durasi untuk belok dalam detik
+turn_duration3 = 3.5  # Durasi untuk belok dalam detik
+wheel_diameter = 51  # Diameter roda dalam cm
 
-# PID parameters
-Kp = 20.0  # Proportional gain
-Ki = 0.2   # Integral gain
-Kd = 3.0   # Derivative gain
+wheel_radius = wheel_diameter / 100 / 2  # Konversi ke meter
+wheel_circumference = 2 * math.pi * wheel_radius  # Lingkaran roda dalam meter
 
-# Initialize error values
-prev_error = 0
-integral = 0
+steps_lurus = int(duration_lurus * 10)  # Asumsi 10 langkah per detik
+steps_belok = int(turn_duration * 10)  # Langkah untuk belokan
+steps_belok2 = int(turn_duration2 * 10)  # Langkah untuk belokan
+steps_belok3 = int(turn_duration3 * 10)  # Langkah untuk belokan
+steps_lurus2 = int(duration_lurus2 * 10)  # Asumsi 10 langkah per detik
+steps_lurus3 = int(duration_lurus3 * 10)  # Asumsi 10 langkah per detik
+steps_lurus4 = int(duration_lurus4 * 10)  # Asumsi 10 langkah per detik
+steps_lurus5 = int(duration_lurus5 * 10)  # Asumsi 10 langkah per detik
+steps_lurus6 = int(duration_lurus6 * 10)  # Asumsi 10 langkah per detik
+steps_lurus7 = int(duration_lurus7 * 10)  # Asumsi 10 langkah per detik
+steps_lurus8 = int(duration_lurus8 * 10)  # Asumsi 10 langkah per detik
+# Inisialisasi jarak tempuh
+distance_traveled = 0
 
-try:
-    while True:
-        # Baca jarak dari sensor kiri dan depan
-        left_distance = read_sensor(left_sensor)
-        front_distance = read_sensor(front_sensor)
-
-        # Front obstacle avoidance
-        if front_distance and front_distance < frontwall_distance:  # Jika ada halangan di depan
-            print("Obstacle detected in front. Turning...")
-            for _ in range(10):
-                set_motor_speed(turning_speed, -turning_speed)
+for i in range(2):  # Mengulangi pola lurus → belok kiri sebanyak 2 kali
+    # Gerakan lurus
+    print(f"\n===> Hasil Gerakan Lurus ke-{i+1} <===")
+    for step in range(steps_lurus):
+        set_motor_speed(left_speed, right_speed)
+        sim.step()
         
-        elif left_distance is not None:  # Jika sensor kiri mendeteksi dinding
-            # PID control for maintaining distance from the wall
-            error = wall_distance - left_distance  # Calculate the error
-            integral += error  # Integral term
-            derivative = error - prev_error  # Derivative term
-            prev_error = error  # Update previous error for the next cycle
+        # Membaca kecepatan joint motor
+        left_velocity = sim.getJointVelocity(left_motor)
+        right_velocity = sim.getJointVelocity(right_motor)
 
-            # PID control equation for adjusting motor speed
-            adjustment = Kp * error + Ki * integral + Kd * derivative
+        # Menghitung jarak yang ditempuh dalam langkah ini
+        left_distance = left_velocity * (1/10) * wheel_circumference
+        right_distance = right_velocity * (1/10) * wheel_circumference
 
-            left_motor_speed = base_speed + adjustment
-            right_motor_speed = base_speed - adjustment
+        # Akumulasi jarak tempuh
+        distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
 
-            # Limit motor speeds to avoid excessive turning
-            left_motor_speed = max(min(left_motor_speed, base_speed + turning_speed), -base_speed - turning_speed)
-            right_motor_speed = max(min(right_motor_speed, base_speed + turning_speed), -base_speed - turning_speed)
+        # Hanya menampilkan setiap 5 langkah
+        if step % 5 == 0 or step == steps_lurus - 1:
+            print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+    
+    # Gerakan belok kiri 1
+    print(f"\n===> Hasil Belokan kiri ke-{i+1} <===")
+    for step in range(steps_belok):
+        set_motor_speed(2, -2)  # Set kecepatan untuk belok kiri
+        sim.step()
 
-            print(f"Adjusting motor speeds: Left = {left_motor_speed:.2f}, Right = {right_motor_speed:.2f}")
-            set_motor_speed(left_motor_speed, right_motor_speed)  # Set adjusted speeds
+        # Membaca kecepatan joint motor
+        left_velocity = sim.getJointVelocity(left_motor)
+        right_velocity = sim.getJointVelocity(right_motor)
 
-        else:
-            print("No wall detected on the left. Moving forward...")
-            set_motor_speed(base_speed-3, base_speed)  # Maju lurus jika tidak ada dinding
+        # Menghitung jarak yang ditempuh dalam langkah ini
+        left_distance = left_velocity * (1/10) * wheel_circumference
+        right_distance = right_velocity * (1/10) * wheel_circumference
 
-        sim.step()  # Update langkah simulasi
-   # Interval waktu setiap langkah
+        # Akumulasi jarak tempuh
+        distance_traveled += (left_distance + right_distance) / 2
 
-finally:
-    # Menghentikan simulasi
-    sim.stopSimulation()
+        # Hanya menampilkan setiap 5 langkah
+        if step % 5 == 0 or step == steps_belok - 1:
+            print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+    
+# Tambahan gerakan lurus
+print(f"\n===> Hasil Gerakan Lurus Tambahan <===")
+for step in range(steps_lurus):
+    set_motor_speed(left_speed, right_speed)
+    sim.step()
+    
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+
+# Gerakan belok kiri 2
+print(f"\n===> Hasil Belokan Kanan <===")
+for step in range(steps_belok):
+    set_motor_speed(-2, 2)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+
+print(f"\n===> Hasil Gerakan Lurus ke-{i+1} <===")
+for step in range(steps_lurus):
+    set_motor_speed(left_speed,right_speed)
+    sim.step()
+        
+        # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+        # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+        # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+        # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+print(f"\n===> Hasil Gerakan Lurus ke-{i+1} <===")
+for step in range(steps_lurus2):
+    set_motor_speed(left_speed, right_speed)
+    sim.step()
+        
+        # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+        # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+        # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+        # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+
+for step in range(steps_belok):
+    set_motor_speed(0, 0)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+#3
+print(f"\n===> Hasil Belokan Kanan <===")
+for step in range(steps_belok):
+    set_motor_speed(-2, 2)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+print(f"\n===> Hasil Belokan Kanan <===")
+for step in range(steps_belok):
+    set_motor_speed(-2, 2)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+    
+# Tambahan gerakan lurus
+print(f"\n===> Hasil Gerakan Lurus Tambahan <===")
+for step in range(steps_lurus3):
+    set_motor_speed(left_speed, right_speed)
+    sim.step()
+    
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+print(f"\n===> Hasil Belokan kiri <===")
+for step in range(steps_belok):
+    set_motor_speed(2, -2)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+# Tambahan gerakan lurus
+print(f"\n===> Hasil Gerakan Lurus Tambahan <===")
+for step in range(steps_lurus):
+    set_motor_speed(left_speed, right_speed)
+    sim.step()
+    
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+print(f"\n===> Hasil Belokan kiri <===")
+for step in range(steps_belok2):
+    set_motor_speed(2, -2)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+
+# Tambahan gerakan lurus
+print(f"\n===> Hasil Gerakan Lurus Tambahan <===")
+for step in range(steps_lurus4):
+    set_motor_speed(left_speed, right_speed)
+    sim.step()
+    
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+print(f"\n===> Hasil Belokan Kanan <===")
+for step in range(steps_belok):
+    set_motor_speed(-2, 2)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+# Tambahan gerakan lurus
+print(f"\n===> Hasil Gerakan Lurus Tambahan <===")
+for step in range(steps_lurus4):
+    set_motor_speed(left_speed, right_speed)
+    sim.step()
+    
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+print(f"\n===> Hasil Belokan Kanan <===")
+for step in range(steps_belok):
+    set_motor_speed(-2, 2)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+# Tambahan gerakan lurus
+print(f"\n===> Hasil Gerakan Lurus Tambahan <===")
+for step in range(steps_lurus2):
+    set_motor_speed(left_speed, right_speed)
+    sim.step()
+    
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+print(f"\n===>STOP <===")
+for step in range(steps_belok):
+    set_motor_speed(0, 0)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+
+print(f"\n===> Hasil Belokan kiri <===")
+for step in range(steps_belok3):
+    set_motor_speed(2, -2)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+
+print(f"\n===> Hasil Belokan kiri <===")
+for step in range(steps_belok):
+    set_motor_speed(2, -2)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+# Tambahan gerakan lurus 
+print(f"\n===> Hasil Gerakan Lurus Tambahan <===")
+for step in range(steps_lurus2):
+    set_motor_speed(left_speed, right_speed)
+    sim.step()
+    
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+print(f"\n===> Hasil Belokan kiri <===")
+for step in range(steps_belok):
+    set_motor_speed(2, -1)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+# Tambahan gerakan lurus nabrak
+print(f"\n===> Hasil Gerakan Lurus Tambahan <===")
+for step in range(steps_lurus):
+    set_motor_speed(left_speed, right_speed)
+    sim.step()
+    
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+
+print(f"\n===> Hasil Belokan kiri <===")
+for step in range(steps_belok):
+    set_motor_speed(2, -2)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+# Tambahan gerakan lurus nabrak
+print(f"\n===> Hasil Gerakan Lurus Tambahan <===")
+for step in range(steps_lurus7):
+    set_motor_speed(left_speed, right_speed)
+    sim.step()
+    
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+print(f"\n===> Hasil Belokan kiri <===")
+for step in range(steps_belok):
+    set_motor_speed(2, -2)  # Set kecepatan untuk belok kiri
+    sim.step()
+
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_belok - 1:
+        print(f"Langkah {step+1}/{steps_belok} - Distance Traveled: {distance_traveled:.2f} m")
+
+# Tambahan gerakan lurus
+print(f"\n===> Hasil Gerakan Lurus Tambahan <===")
+for step in range(steps_lurus6):
+    set_motor_speed(left_speed, right_speed)
+    sim.step()
+    
+    # Membaca kecepatan joint motor
+    left_velocity = sim.getJointVelocity(left_motor)
+    right_velocity = sim.getJointVelocity(right_motor)
+
+    # Menghitung jarak yang ditempuh dalam langkah ini
+    left_distance = left_velocity * (1/10) * wheel_circumference
+    right_distance = right_velocity * (1/10) * wheel_circumference
+
+    # Akumulasi jarak tempuh
+    distance_traveled += (left_distance + right_distance) / 2  # Rata-rata jarak
+
+    # Hanya menampilkan setiap 5 langkah
+    if step % 5 == 0 or step == steps_lurus - 1:
+        print(f"Langkah {step+1}/{steps_lurus} - Distance Traveled: {distance_traveled:.2f} m")
+
+
+
+print("\n#==========| Hasil Akhir |==========#")
+print("|"f"Left Motor Velocity: {left_velocity:.2f} rad/s    |")
+print("|"f"Right Motor Velocity: {right_velocity:.2f} rad/s  |")
+rotations = distance_traveled / wheel_circumference
+print("|"f"Wheel Rotations: {rotations:.2f}            |")
+print("|"f"Total Distance Traveled: {distance_traveled:.2f} m  |")
+print("#==========|*|==========#")
+sim.stopSimulation()
